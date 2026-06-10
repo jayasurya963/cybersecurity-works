@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OSINT Results - {{ result.target }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f4; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        h1 { color: #007bff; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow: auto; max-height: 400px; }
+        .section { margin: 30px 0; padding: 20px; border: 1px solid #eee; border-radius: 8px; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 8px; background: #f8f9fa; margin: 5px 0; border-radius: 4px; }
+        .export-btn { background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🕵️ OSINT Results for: <strong>{{ result.target }}</strong></h1>
+        <p><strong>Scan Time:</strong> {{ result.timestamp }}</p>
+
+        <!-- WHOIS -->
+        <div class="section">
+            <h2>📋 WHOIS Information</h2>
+            <pre>{{ result.whois | tojson(indent=2) }}</pre>
+        </div>
+
+        <!-- Subdomains -->
+        <div class="section">
+            <h2>🌐 Subdomains Found ({{ result.subdomains|length }})</h2>
+            <ul>
+            {% for sub in result.subdomains %}
+                <li>{{ sub }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Shodan -->
+        <div class="section">
+            <h2>🔍 Shodan Intelligence</h2>
+            {% if result.shodan.error %}
+                <p style="color: orange;">{{ result.shodan.error }}</p>
+            {% else %}
+                <p><strong>Total Hosts Found:</strong> {{ result.shodan.total }}</p>
+                <h3>Recent Matches:</h3>
+                <pre>{{ result.shodan.matches | tojson(indent=2) }}</pre>
+            {% endif %}
+        </div>
+
+        <a href="/">← New Scan</a> | 
+        <a href="/history">View All History</a> |
+        <button class="export-btn" onclick="exportJSON()">📥 Export as JSON</button>
+    </div>
+
+    <script>
+    function exportJSON() {
+        const data = { result , tojson };
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "{{ result.target }}_osint.json";
+        a.click();
+    }
+    </script>
+</body>
+</html>

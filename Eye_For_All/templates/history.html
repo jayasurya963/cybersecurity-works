@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scan History</title>
+    <style> body { font-family: Arial; margin: 40px; } table { width: 100%; border-collapse: collapse; } th, td { padding: 10px; border: 1px solid #ddd; } </style>
+</head>
+<body>
+    <h1>Scan History</h1>
+    <table>
+        <tr><th>Target</th><th>Scan Time</th><th>Actions</th></tr>
+        {% for scan in scans %}
+        <tr>
+            <td>{{ scan.target }}</td>
+            <td>{{ scan.timestamp }}</td>
+            <td><a href="#">View Details</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="/">← New Scan</a>
+</body>
+</html>
