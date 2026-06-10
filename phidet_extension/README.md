@@ -3,7 +3,7 @@ A lightweight, real-time phishing detection browser extension for Chrome and Fir
 
 ## IT JUST WORKS.
 
-# Features:
+#Features:
 Real-time URL Analysis: Detects typosquatting and lookalike domains (examples -- paypa1.com, g00gle.com)
 Form Protection: Scans login forms and alerts if they submit to suspicious endpoints
 Domain Similarity Check: Uses Levenshtein distance algorithm for smart detection
