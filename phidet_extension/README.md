@@ -27,8 +27,8 @@ The extension uses the WebExtensions API to:
 
 ## Installation 
 - Clone or download this repository
-- Open Chrome and go to `chrome://extensions/`
-- Enable **Developer mode** (top right)
-- ick **"Load unpacked"** and select the project folder
+- Open Chrome and go to chrome://extensions/
+- Enable Developer mode (top right)
+- Load unpacked and select the project folder
 - The extension is now active!
 
