@@ -22,7 +22,6 @@ A targeted, intelligent wordlist generator that crawls a website and builds a cu
 
 **Create your -- 'python -m venv venv' -> Install the dependencies using 'pip'**
 
-- Run as 'python wordlist.py'
-- Then enter the target URL when prompted (e.g. https://example.com).
-- Example Output -> custom_wordlist.txt 
+- Run as 'python wordlist_generator.py https://example.com --pages 30 --output company_wordlist.txt'
+- Example Output -> company_wordlist.txt
 
