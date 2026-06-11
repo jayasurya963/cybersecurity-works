@@ -1,3 +1,4 @@
+import argparse
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -6,6 +7,7 @@ import random
 from urllib.parse import urlparse, urljoin
 from fake_useragent import UserAgent
 import os
+from datetime import datetime
 
 class SmartWordlistGenerator:
     def __init__(self):
@@ -15,97 +17,93 @@ class SmartWordlistGenerator:
         self.visited = set()
         self.words = set()
 
-    def crawl(self, start_url, max_pages=30, delay=1):
-        """Crawl website and extract words"""
-        print(f"🚀 Starting crawl on: {start_url}")
-        
+    def crawl(self, start_url, max_pages=30, delay=1.2):
+        print(f"🚀 Crawling: {start_url} (max {max_pages} pages)")
         to_visit = [start_url]
-        
+
         while to_visit and len(self.visited) < max_pages:
             url = to_visit.pop(0)
-            if url in self.visited:
-                continue
-                
+            if url in self.visited: continue
+
             try:
-                print(f"📄 Crawling: {url}")
-                response = self.session.get(url, timeout=10)
-                response.raise_for_status()
-                
+                print(f"   ↳ {url}")
+                resp = self.session.get(url, timeout=12)
+                resp.raise_for_status()
+
                 self.visited.add(url)
-                
-                # Extract text
-                soup = BeautifulSoup(response.text, 'lxml')
-                
-                # Remove script and style
+                soup = BeautifulSoup(resp.text, 'lxml')
+
                 for script in soup(["script", "style"]):
                     script.decompose()
-                
+
                 text = soup.get_text()
-                
-                # Extract words (alphanumeric + some special chars)
-                found_words = re.findall(r'\b[a-zA-Z0-9@._-]{3,30}\b', text)
-                for word in found_words:
-                    if len(word) >= 3:
-                        self.words.add(word.lower())
-                
-                # Find more links
-                for link in soup.find_all('a', href=True):
-                    next_url = urljoin(url, link['href'])
+                found = re.findall(r'\b[a-zA-Z0-9@._-]{4,40}\b', text)
+                for w in found:
+                    if len(w) >= 4:
+                        self.words.add(w.lower())
+
+                # Find links
+                for a in soup.find_all('a', href=True):
+                    next_url = urljoin(url, a['href'])
                     if self.is_same_domain(start_url, next_url) and next_url not in self.visited:
                         to_visit.append(next_url)
-                
-                time.sleep(delay + random.uniform(0, 1))
-                
+
+                time.sleep(delay + random.uniform(0, 0.8))
+
             except Exception as e:
-                print(f"⚠️ Error crawling {url}: {e}")
-        
-        print(f"✅ Crawl finished. Found {len(self.words)} unique words.")
+                print(f"   ⚠️ Error: {e}")
 
-    def is_same_domain(self, base_url, check_url):
-        base_domain = urlparse(base_url).netloc
-        check_domain = urlparse(check_url).netloc
-        return base_domain in check_domain or check_domain in base_domain
+        print(f"✅ Crawl complete. {len(self.words)} unique words found.")
 
-    def generate_mutations(self):
-        """Create common password variations"""
-        print("🔧 Generating mutations...")
-        base_words = list(self.words)
-        mutations = set(base_words)
-        
-        common_suffixes = ['123', '1234', '2023', '2024', '2025', '!', '@', '#', '$']
-        
-        for word in base_words:
+    def is_same_domain(self, base, check):
+        return urlparse(base).netloc in urlparse(check).netloc
+
+    def generate_mutations(self, min_length=6):
+        print("🔧 Generating smart mutations...")
+        mutations = set()
+
+        for word in self.words:
+            if len(word) < min_length: continue
+            mutations.add(word)
             mutations.add(word.capitalize())
             mutations.add(word.upper())
-            
-            for suffix in common_suffixes:
+
+            # Common patterns
+            for suffix in ['123', '1234', '2024', '2025', '!', '@', '#', '$', 'admin']:
                 mutations.add(word + suffix)
                 mutations.add(word.capitalize() + suffix)
-            
-            # Leetspeak basics
-            leet = word.replace('a', '@').replace('e', '3').replace('i', '1').replace('o', '0')
+
+            # Basic leetspeak
+            leet = word.replace('a','@').replace('e','3').replace('i','1').replace('o','0').replace('s','$')
             if leet != word:
                 mutations.add(leet)
-        
+
         return sorted(list(mutations), key=len)
 
-    def save_wordlist(self, filename="custom_wordlist.txt"):
+    def save(self, filename):
         mutations = self.generate_mutations()
         with open(filename, "w", encoding="utf-8") as f:
-            for word in mutations[:20000]:  # Limit size
+            for word in mutations[:30000]:
                 f.write(word + "\n")
-        
-        print(f"💾 Wordlist saved as '{filename}'")
-        print(f"Total entries: {len(mutations)}")
+        print(f"💾 Saved {len(mutations)} words → {filename}")
 
-# ============== MAIN ==============
+# ====================== CLI ======================
 if __name__ == "__main__":
-    target = input("Enter target website URL (e.g. https://example.com): ").strip()
-    if not target.startswith("http"):
-        target = "https://" + target
-    
+    parser = argparse.ArgumentParser(description="Smart Targeted Wordlist Generator")
+    parser.add_argument("url", help="Target URL (e.g. https://example.com)")
+    parser.add_argument("-p", "--pages", type=int, default=25, help="Max pages to crawl")
+    parser.add_argument("-d", "--delay", type=float, default=1.2, help="Delay between requests")
+    parser.add_argument("-o", "--output", default=None, help="Output filename")
+    parser.add_argument("-m", "--min-length", type=int, default=6)
+
+    args = parser.parse_args()
+
+    if not args.output:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+        args.output = f"wordlist_{urlparse(args.url).netloc}_{timestamp}.txt"
+
     generator = SmartWordlistGenerator()
-    generator.crawl(target, max_pages=25, delay=1.5)
-    generator.save_wordlist()
-    
-    print("\n🎉 Done! Use this wordlist with tools like Hydra, Medusa, or John the Ripper.")
+    generator.crawl(args.url, max_pages=args.pages, delay=args.delay)
+    generator.save(args.output)
+
+    print("\n🎉 Wordlist ready for use with Hydra, John, Hashcat, etc.")
