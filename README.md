@@ -5,9 +5,9 @@ PhiDet - Phishing Detector Browser Extension.
 ## Project-2
 Eye_For_All -- OSINT Dashboard
 A web-based Open Source Intelligence (OSINT) dashboard built in Python with Flask. It gathers public information about domains including WHOIS data, subdomains, and Shodan intelligence.
-  - Easy to Use
-  - Simple web interface
-  - One-click scanning
+- Easy to Use
+- Simple web interface
+- One-click scanning
 
 ## Project-3 
 Smart Wordlist Generator - A targeted, intelligent wordlist generator that crawls a website and builds a custom dictionary using real words, names, products, and terminology from the target. Perfect for security testing, password cracking, and reconnaissance.
