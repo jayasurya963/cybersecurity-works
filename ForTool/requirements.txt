@@ -1,0 +1,6 @@
+ pillow 
+ exifread 
+ python-docx 
+ PyPDF2 
+ mutagen 
+ requests
