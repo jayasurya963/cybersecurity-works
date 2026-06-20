@@ -16,3 +16,7 @@ A web-based Open Source Intelligence (OSINT) dashboard built in Python with Flas
 ## Project-4
 **ForTool** - Digital Forensics Metadata Tool.
 A Python tool that extracts hidden metadata from images, PDFs, Word documents, and audio files. Perfect for digital forensics, OSINT, and security investigations.
+
+## Project-5
+**AuthSec_Tester** - Authentication Security Tester.
+A professional tool to test the security strength of login systems. It checks for common authentication vulnerabilities such as weak rate limiting, username enumeration, poor error handling, and detailed JSON report generation
